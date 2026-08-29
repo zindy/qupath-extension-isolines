@@ -22,7 +22,7 @@
                 </valueFactory>
             </Spinner>
         </HBox>
-        <Button onAction="#runDemoExtension" text="%run.button.text">
+        <Button onAction="#runIsolinesExtension" text="%run.button.text">
             <Tooltip text="%run.button.tooltip"/>
         </Button>
     </VBox>

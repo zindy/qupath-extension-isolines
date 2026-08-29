@@ -1,4 +1,4 @@
-package qupath.ext.template;
+package qupath.ext.isolines;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -8,7 +8,7 @@ import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qupath.ext.template.ui.InterfaceController;
+import qupath.ext.isolines.ui.InterfaceController;
 import qupath.fx.dialogs.Dialogs;
 import qupath.fx.prefs.controlsfx.PropertyItemBuilder;
 import qupath.lib.common.Version;
@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
 
 
 /**
- * This is a demo to provide a template for creating a new QuPath extension.
+ * This is a demo to provide a isolines for creating a new QuPath extension.
  * <p>
  * It doesn't do much - it just shows how to add a menu item and a preference.
  * See the code and comments below for more info.
@@ -32,14 +32,14 @@ import java.util.ResourceBundle;
  *     /resources/META-INF/services/qupath.lib.gui.extensions.QuPathExtension
  * </pre>
  */
-public class DemoExtension implements QuPathExtension {
+public class IsolinesExtension implements QuPathExtension {
 	// TODO: add and modify strings to this resource bundle as needed
 	/**
 	 * A resource bundle containing all the text used by the extension. This may be useful for translation to other languages.
 	 * Note that this is optional and you can define the text within the code and FXML files that you use.
 	 */
-	private static final ResourceBundle resources = ResourceBundle.getBundle("qupath.ext.template.ui.strings");
-	private static final Logger logger = LoggerFactory.getLogger(DemoExtension.class);
+	private static final ResourceBundle resources = ResourceBundle.getBundle("qupath.ext.isolines.ui.strings");
+	private static final Logger logger = LoggerFactory.getLogger(IsolinesExtension.class);
 
 	/**
 	 * Display name for your extension
@@ -106,7 +106,7 @@ public class DemoExtension implements QuPathExtension {
 	}
 
 	/**
-	 * Demo showing how to add a persistent preference to the QuPath preferences pane.
+	 * Isolines showing how to add a persistent preference to the QuPath preferences pane.
 	 * The preference will be in a section of the preference pane based on the
 	 * category you set. The description is used as a tooltip.
 	 * @param qupath The currently running QuPathGUI instance.
@@ -114,7 +114,7 @@ public class DemoExtension implements QuPathExtension {
 	private void addPreferenceToPane(QuPathGUI qupath) {
         var propertyItem = new PropertyItemBuilder<>(enableExtensionProperty, Boolean.class)
 				.name(resources.getString("menu.enable"))
-				.category("Demo extension")
+				.category("Isolines extension")
 				.description("Enable the demo extension")
 				.build();
 		qupath.getPreferencePane()
@@ -125,7 +125,7 @@ public class DemoExtension implements QuPathExtension {
 
 
 	/**
-	 * Demo showing how a new command can be added to a QuPath menu.
+	 * Isolines showing how a new command can be added to a QuPath menu.
 	 * @param qupath The QuPath GUI
 	 */
 	private void addMenuItem(QuPathGUI qupath) {
@@ -137,7 +137,7 @@ public class DemoExtension implements QuPathExtension {
 	}
 
 	/**
-	 * Demo showing how to create a new stage with a JavaFX FXML interface.
+	 * Isolines showing how to create a new stage with a JavaFX FXML interface.
 	 */
 	private void createStage() {
 		if (stage == null) {
