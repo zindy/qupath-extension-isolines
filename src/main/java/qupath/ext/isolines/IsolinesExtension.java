@@ -21,16 +21,7 @@ import java.util.ResourceBundle;
 
 
 /**
- * This is a demo to provide a isolines for creating a new QuPath extension.
- * <p>
- * It doesn't do much - it just shows how to add a menu item and a preference.
- * See the code and comments below for more info.
- * <p>
- * <b>Important!</b> For your extension to work in QuPath, you need to make sure the name &amp; package
- * of this class is consistent with the file
- * <pre>
- *     /resources/META-INF/services/qupath.lib.gui.extensions.QuPathExtension
- * </pre>
+ * This is part of the qupath-extension-isolines package.
  */
 public class IsolinesExtension implements QuPathExtension {
 	// TODO: add and modify strings to this resource bundle as needed
@@ -130,7 +121,7 @@ public class IsolinesExtension implements QuPathExtension {
 	 */
 	private void addMenuItem(QuPathGUI qupath) {
 		var menu = qupath.getMenu("Extensions>" + EXTENSION_NAME, true);
-		MenuItem menuItem = new MenuItem("My menu item");
+		MenuItem menuItem = new MenuItem(EXTENSION_NAME);
 		menuItem.setOnAction(e -> createStage());
 		menuItem.disableProperty().bind(enableExtensionProperty.not());
 		menu.getItems().add(menuItem);
