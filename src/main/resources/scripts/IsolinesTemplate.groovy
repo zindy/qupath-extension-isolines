@@ -41,13 +41,9 @@ Isolines.createIsolinesFromJson(imageData, densityMapPath, channel, nLevels, mas
 // Simplification (above) only smooths jagged boundaries -- it doesn't drop small isolated
 // fragments or holes. If you're seeing lots of those, uncomment the block below to remove
 // anything smaller than the given area (in pixels^2) via GeometryTools.refineAreas.
-//
-// Note this matches by class-name *prefix* ("Isoline "), not equality: every level gets
-// its own distinct class name (e.g. "Isoline 5.000"), so matching on the exact string
-// "Isoline" alone -- as in an earlier draft of this script -- would never match anything.
 /*
 hierarchy.getAnnotationObjects().findAll {
-    it.getPathClass() != null && it.getPathClass().toString().startsWith("Isoline ")
+    it.getPathClass() == getPathClass("Isoline")
 }.each { isoline ->
     def isolineROI = isoline.getROI()
     def plane = isolineROI.getImagePlane()

@@ -21,6 +21,7 @@ import qupath.lib.images.ImageData;
 import qupath.lib.objects.PathObject;
 import qupath.lib.objects.PathObjectTools;
 import qupath.lib.objects.classes.PathClass;
+import qupath.lib.objects.classes.PathClassFactory;
 import qupath.lib.objects.hierarchy.PathObjectHierarchy;
 import qupath.lib.projects.Project;
 import qupath.lib.projects.Projects;
@@ -64,17 +65,14 @@ public class InterfaceController extends VBox {
      * Used here (a) to identify annotations to remove when 'Clear existing isolines' is checked, and
      * (b) in the generated script's commented-out post-processing block.
      */
-    private static final String ISOLINE_CLASS_PREFIX = "Isoline ";
+	private static final String ISOLINE_CLASS_NAME = "Isoline";
 
     private static final String TEMPLATE_RESOURCE = "scripts/IsolinesTemplate.groovy";
 
     private static final String CLEAR_BLOCK =
             "// Clear all previously-generated isoline annotations before creating new ones.\n" +
-            "// (DensityMaps.threshold's own DELETE_EXISTING option only clears the exact class name for\n" +
-            "// a single level, so a previous run with different levels wouldn't be removed by that alone --\n" +
-            "// this clears anything already classified as an isoline, by class-name prefix, instead.)\n" +
             "def existingIsolines = hierarchy.getAnnotationObjects().findAll {\n" +
-            "    it.getPathClass() != null && it.getPathClass().toString().startsWith(\"" + ISOLINE_CLASS_PREFIX + "\")\n" +
+            "    it.getPathClass() == getPathClass(\"" + ISOLINE_CLASS_NAME + "\")\n" +
             "}\n" +
             "if (!existingIsolines.isEmpty())\n" +
             "    hierarchy.removeObjects(existingIsolines, true)\n";
@@ -324,11 +322,17 @@ public class InterfaceController extends VBox {
     }
 
     private void clearExistingIsolines(PathObjectHierarchy hierarchy) {
+        //PathClass isolineClass = PathClass.fromString(ISOLINE_CLASS_NAME);
+        
         var existing = hierarchy.getAnnotationObjects().stream()
-                .filter(p -> p.getPathClass() != null && p.getPathClass().toString().startsWith(ISOLINE_CLASS_PREFIX))
+                // Cleaner method commented out but the filter needs to consider isolines generated with v0.1.0
+                //.filter(p -> isolineClass.equals(p.getPathClass()))
+                .filter(p -> p.getPathClass() != null && p.getPathClass().toString().startsWith(ISOLINE_CLASS_NAME))
                 .toList();
-        if (!existing.isEmpty())
+                
+        if (!existing.isEmpty()) {
             hierarchy.removeObjects(existing, true);
+        }
     }
 
     @FXML

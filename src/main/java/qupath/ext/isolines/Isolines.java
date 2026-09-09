@@ -104,6 +104,14 @@ public class Isolines {
 
 	private static final Logger logger = LoggerFactory.getLogger(Isolines.class);
 
+	/**
+	 * Classification applied to every isoline annotation, regardless of level. Levels are
+	 * distinguished by name ("Isoline 1.234") and by a per-object colour override, not by class --
+	 * see {@link #createIsolines(PathObjectHierarchy, ImageServer, int, double[], ColorMap, double,
+	 * double, Collection, CreateObjectOptions...)}.
+	 */
+	private static final String ISOLINE_CLASS_NAME = "Isoline";
+
 	private Isolines() {}
 
 	/**
@@ -281,33 +289,59 @@ public class Isolines {
 		var previousSelection = new LinkedHashSet<>(selectionModel.getSelectedObjects());
 		boolean masked = maskObjects != null && !maskObjects.isEmpty();
 
+		// All levels share one classification -- threshold() can no longer be relied on to scope
+		// DELETE_EXISTING to a single level (it matches by classification name, and every level now
+		// has the same name), so do that deletion once upfront instead and strip the option from the
+		// per-level calls.
+		var optionsList = new java.util.ArrayList<>(Arrays.asList(options));
+		boolean deleteExistingUpfront = optionsList.remove(CreateObjectOptions.DELETE_EXISTING);
+		var perLevelOptions = optionsList.toArray(CreateObjectOptions[]::new);
+
+		var isolineClass = PathClass.fromString(ISOLINE_CLASS_NAME);
+
 		try {
 			if (masked)
 				selectionModel.setSelectedObjects(maskObjects, null);
 			else
 				selectionModel.clearSelection();
 
+			if (deleteExistingUpfront) {
+				var existing = hierarchy.getAnnotationObjects().stream()
+						.filter(p -> p.getPathClass() == isolineClass)
+						.toList();
+				if (!existing.isEmpty())
+					hierarchy.removeObjects(existing, true);
+			}
+
+			// threshold() doesn't hand back the objects it creates, and every level now shares one
+			// PathClass, so class-based filtering can no longer tell levels apart -- identity diffing
+			// against a running snapshot replaces that. Taken once here rather than re-copied in full
+			// on every iteration, then just grown by each level's own findings as we go.
+			var knownObjects = new java.util.HashSet<>(hierarchy.getAnnotationObjects());
+
 			for (double v : sortedLevels) {
 				String name = "Isoline " + String.format(Locale.US, "%.4g", v);
-				var pathClass = PathClass.fromString(name);
-
-				// TODO verify against qupath.lib.color.ColorMaps before relying on this:
-				//  - exact signature of ColorMap#getColor(double, double, double)
-				//  - whether the returned int carries an alpha channel that needs masking
-				//    (PathClass colours are typically plain RGB) before being passed to setColor
 				int rgb = colorMap.getColor(v, minDisplay, maxDisplay);
-				pathClass.setColor(rgb);
 
-				logger.debug("Thresholding isoline at {} -> class '{}' (masked: {})", v, name, masked);
-				DensityMaps.threshold(hierarchy, densityServer, Map.of(channel, v), name, options);
+				logger.debug("Thresholding isoline at {} -> class '{}' (masked: {})", v, ISOLINE_CLASS_NAME, masked);
+				DensityMaps.threshold(hierarchy, densityServer, Map.of(channel, v), ISOLINE_CLASS_NAME, perLevelOptions);
 
 				var created = hierarchy.getAnnotationObjects().stream()
-						.filter(p -> p.getPathClass() == pathClass)
+						.filter(p -> !knownObjects.contains(p))
 						.toList();
 				if (created.isEmpty())
 					logger.warn("No isoline annotations created at level {} (channel {})", v, channel);
-				else if (simplifyTolerance > 0)
-					created.forEach(isoline -> simplify(isoline, simplifyTolerance));
+				else {
+					for (var p : created) {
+						p.setName(name);
+						p.setColor(rgb);
+					}
+					
+					if (simplifyTolerance > 0)
+						created.forEach(isoline -> simplify(isoline, simplifyTolerance));
+
+					knownObjects.addAll(created);
+				}
 				result.put(v, created);
 			}
 		} finally {
