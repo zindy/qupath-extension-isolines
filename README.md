@@ -123,7 +123,7 @@ Isolines.createIsolinesFromJson(imageData, densityMapPath, channel, nLevels, mas
 // area (in pixels^2) via GeometryTools.refineAreas, if you're seeing a lot of those.
 /*
 hierarchy.getAnnotationObjects().findAll {
-    it.getPathClass() != null && it.getPathClass().toString().startsWith("Isoline ")
+    it.getPathClass() == getPathClass("Isoline")
 }.each { isoline ->
     def isolineROI = isoline.getROI()
     def plane = isolineROI.getImagePlane()
